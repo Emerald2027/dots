@@ -1,0 +1,108 @@
+{
+  "$schema": "/etc/xdg/swaync/configSchema.json",
+  "ignore-gtk-theme": false,
+  "positionX": "right",
+  "positionY": "top",
+  "control-center-margin-top": 10,
+  "control-center-margin-bottom": 10,
+  "control-center-margin-right": 10,
+  "notification-body-image-height": 100,
+  "notification-body-image-width": 200,
+  "timeout": 10,
+  "timeout-low": 5,
+  "timeout-critical": 0,
+  "fit-to-screen": false,
+  "control-center-width": 500,
+  "control-center-height": 1035,
+  "notification-window-width": 500,
+  "keyboard-shortcuts": true,
+  "image-visibility": "when-available",
+  "transition-time": 200,
+  "hide-on-clear": false,
+  "hide-on-action": true,
+  "script-fail-notify": true,
+  "text-empty": "No Notification",
+  "scripts": {
+    "sound-script": {
+      "exec": "paplay ~/.config/swaync/notification.ogg",
+      "app-name": ".*"
+    }
+  },
+  "widgets": ["title", "buttons-grid","volume", "backlight", "mpris"],
+  "widget-config": {
+    "title": {
+      "text": "Notification Center",
+      "clear-all-button": true,
+      "button-text": "󰆴 Clear All"
+    },
+    "mpris": {
+      "blacklist": ["playerctl"],
+      "autohide": false,
+      "show-album-art": "always",
+      "loop-carousel": false
+    },
+    "volume": {
+        "label": "󰕾",
+        "type": "slider",
+        "command-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
+        "command-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
+        "command-mute": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+        "value-command": "pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\\d+%' | head -1"
+    },
+    "backlight": {
+        "label": "󰃟",
+        "type": "slider",
+        "device": "amdgpu_bl1",
+        "command-up": "brightnessctl set +5%",
+        "command-down": "brightnessctl set 5%-",
+        "value-command": "brightnessctl g"
+    },
+    "buttons-grid": {
+      "actions": [
+        {
+          "label": "󰐥",
+          "command": "systemctl poweroff"
+        },
+        {
+          "label": "󰜉",
+          "command": "systemctl reboot"
+        },
+        {
+          "label": "󰌾",
+          "command": "hyprlock"
+        },
+        {
+          "label": "󰍃",
+          "command": "loginctl terminate-session ${XDG_SESSION_ID-}"
+
+        },
+        {
+          "label": "󰆴",
+          "command": "swaync-client -C"
+        },
+        {
+          "label": "󰝟",
+          "command": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+          "type": "toggle"
+        },
+        {
+          "label": "",
+          "command": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
+          "type": "toggle"
+        },
+        {
+          "label": "󰖩",
+          "command": "iwgtk"
+        },
+        {
+          "label": "󰂯",
+          "command": "blueman-manager"
+        },
+        {
+          "label": "",
+          "command": "kooha"
+        }
+      ]
+    }
+  }
+}
