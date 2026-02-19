@@ -153,10 +153,17 @@ unset_alt  = { fg = "${color3}", bg = "${color8}" }
 
 # : }}}
 
+[indicator]
+
+padding = { open = "█", close = "█" }
 
 # : Status bar {{{
 
 [status]
+
+sep_left  = { open = "█", close = "█" }
+sep_right = { open = "█", close = "█" }
+
 perm_sep   = { fg = "${color8}" }
 perm_type  = { fg = "${color5}" }
 perm_read  = { fg = "${color3}" }
@@ -247,8 +254,14 @@ title_info  = { fg = "${color2}" }
 title_warn  = { fg = "${color3}" }
 title_error = { fg = "${color1}" }
 
+
 # : }}}
 
+# : Icons {{{
+
+
+
+# : }}}
 
 # : File-specific styles {{{
 
@@ -265,36 +278,35 @@ rules = [
 ]
 
 # : }}}
-
 [icon]
 
 dirs = [
-	{ name = ".config", text = "", fg = "${color5}" },
-	{ name = ".git", text = "", fg = "${color6}" },
-	{ name = ".github", text = "", fg = "${color5}" },
-	{ name = ".npm", text = "", fg = "${color5}" },
-	{ name = "Desktop", text = "", fg = "${color6}" },
-	{ name = "Development", text = "", fg = "${color6}" },
-	{ name = "Documents", text = "", fg = "${color6}" },
-	{ name = "Downloads", text = "", fg = "${color6}" },
-	{ name = "Library", text = "", fg = "${color6}" },
-	{ name = "Movies", text = "", fg = "${color6}" },
-	{ name = "Music", text = "", fg = "${color6}" },
-	{ name = "Pictures", text = "", fg = "${color6}" },
-	{ name = "Public", text = "", fg = "${color6}" },
-	{ name = "Videos", text = "", fg = "${color6}" },
+	{ name = ".config", text = "", fg = "${color5}" },
+	{ name = ".git", text = "", fg = "${color6}" },
+	{ name = ".github", text = "", fg = "${color5}" },
+	{ name = ".npm", text = "", fg = "${color5}" },
+	{ name = "Desktop", text = "", fg = "${color6}" },
+	{ name = "Development", text = "", fg = "${color6}" },
+	{ name = "Documents", text = "󰈙", fg = "${color6}" },
+	{ name = "Downloads", text = "󰇚", fg = "${color6}" },
+	{ name = "Library", text = "", fg = "${color6}" },
+	{ name = "Movies", text = "󰎁", fg = "${color6}" },
+	{ name = "Music", text = "󰝚", fg = "${color6}" },
+	{ name = "Pictures", text = "", fg = "${color6}" },
+	{ name = "Public", text = "", fg = "${color6}" },
+	{ name = "Videos", text = "󰕧", fg = "${color6}" },
 ]
 conds = [
 	{ if = "orphan", text = "", fg = "${color7}" },
-	{ if = "link", text = "", fg = "${color8}" },
+	{ if = "link", text = "", fg = "${color8}" },
 	{ if = "block", text = "", fg = "${color3}" },
 	{ if = "char", text = "", fg = "${color3}" },
 	{ if = "fifo", text = "", fg = "${color3}" },
 	{ if = "sock", text = "", fg = "${color3}" },
 	{ if = "sticky", text = "", fg = "${color3}" },
 	{ if = "dummy", text = "", fg = "${color1}" },
-	{ if = "dir", text = "", fg = "${color5}" },
-	{ if = "exec", text = "", fg = "${color2}" },
+	{ if = "dir", text = "", fg = "${color5}" },
+	{ if = "exec", text = "", fg = "${color2}" },
 	{ if = "!dir", text = "", fg = "${color7}" },
 ]
 EOF
