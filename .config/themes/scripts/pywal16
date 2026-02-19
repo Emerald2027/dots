@@ -1,0 +1,301 @@
+#!/bin/bash
+
+# Source pywal colors
+source ~/.cache/wal/colors.sh
+
+# Apply to Kitty
+if [ -f ~/.cache/wal/colors-kitty.conf ]; then
+    cp ~/.cache/wal/colors-kitty.conf ~/.config/kitty/colors.conf
+    killall -SIGUSR1 kitty 2>/dev/null
+fi
+
+# Apply to Rofi
+mkdir -p ~/.config/rofi
+cat > ~/.config/rofi/colors.rasi << EOF
+* {
+    selected-normal-foreground:  ${color0}; //highlighted text
+    foreground:                  ${color7}; //color of other text
+    normal-foreground:           @foreground;
+    alternate-normal-background: ${color8}; //odd numbered background
+    red:                         rgba ( 220, 50, 47, 100 % );
+    selected-urgent-foreground:  rgba ( 255, 24, 68, 100 % );
+    blue:                        rgba ( 38, 139, 210, 100 % );
+    urgent-foreground:           rgba ( 255, 24, 68, 100 % );
+    alternate-urgent-background: rgba ( 39, 50, 56, 100 % );
+    active-foreground:           rgba ( 128, 203, 196, 100 % );
+    lightbg:                     rgba ( 238, 232, 213, 100 % );
+    selected-active-foreground:  rgba ( 128, 203, 196, 100 % );
+    alternate-active-background: @alternate-normal-background;
+    background:                  @alternate-normal-background;
+    bordercolor:                 @alternate-normal-background;
+    alternate-normal-foreground: @foreground;
+    normal-background:           @alternate-normal-background;
+    lightfg:                     rgba ( 88, 104, 117, 100 % );
+    selected-normal-background:  ${color7}; //selection background
+    border-color:                @foreground;
+    spacing:                     2;
+    separatorcolor:              ${color5}; //dashed line between search and options
+    urgent-background:           rgba ( 39, 50, 56, 100 % );
+    selected-urgent-background:  rgba ( 57, 66, 73, 100 % );
+    alternate-urgent-foreground: @urgent-foreground;
+    background-color:            rgba ( 0, 0, 0, 0 % );
+    alternate-active-foreground: @active-foreground;
+    active-background:           rgba ( 39, 50, 56, 100 % );
+    selected-active-background:  rgba ( 57, 66, 73, 100 % );
+}
+EOF
+
+# Apply to Waybar
+cat > ~/.config/waybar/colors.css << EOF
+/* Pywal Colors */
+@define-color background ${background};
+@define-color foreground ${foreground};
+@define-color color0 ${color0};
+@define-color color1 ${color1};
+@define-color color2 ${color2};
+@define-color color3 ${color3};
+@define-color color4 ${color4};
+@define-color color5 ${color5};
+@define-color color6 ${color6};
+@define-color color7 ${color7};
+@define-color color8 ${color8};
+@define-color color9 ${color9};
+@define-color color10 ${color10};
+@define-color color11 ${color11};
+@define-color color12 ${color12};
+@define-color color13 ${color13};
+@define-color color14 ${color14};
+@define-color color15 ${color15};
+EOF
+
+# Apply to Hyprland
+cat > ~/.config/hypr/colors.conf << EOF
+# Pywal Colors for Hyprland
+\$background = rgb(${background#\#})
+\$foreground = rgb(${foreground#\#})
+\$color0 = rgb(${color0#\#})
+\$color1 = rgb(${color1#\#})
+\$color2 = rgb(${color2#\#})
+\$color3 = rgb(${color3#\#})
+\$color4 = rgb(${color4#\#})
+\$color5 = rgb(${color5#\#})
+\$color6 = rgb(${color6#\#})
+\$color7 = rgb(${color7#\#})
+\$color8 = rgb(${color8#\#})
+\$color9 = rgb(${color9#\#})
+\$color10 = rgb(${color10#\#})
+\$color11 = rgb(${color11#\#})
+\$color12 = rgb(${color12#\#})
+\$color13 = rgb(${color13#\#})
+\$color14 = rgb(${color14#\#})
+\$color15 = rgb(${color15#\#})
+
+EOF
+
+# Reload Waybar
+pkill waybar && waybar &
+
+# Reload Hyprland colors
+hyprctl reload
+
+#: yazi {{{
+cat > ~/.config/yazi/theme.toml << EOF
+# vim:fileencoding=utf-8:foldmethod=marker
+
+# : Manager {{{
+
+[mgr]
+cwd = { fg = "${color6}" }
+
+# Find
+find_keyword  = { fg = "${color3}", bold = true, italic = true, underline = true }
+find_position = { fg = "${color5}", bg = "reset", bold = true, italic = true }
+
+# Marker
+marker_copied   = { fg = "${color2}", bg = "${color2}" }
+marker_cut      = { fg = "${color1}", bg = "${color1}" }
+marker_marked   = { fg = "${color6}", bg = "${color6}" }
+marker_selected = { fg = "${color3}", bg = "${color3}" }
+
+# Count
+count_copied   = { fg = "${color0}", bg = "${color2}" }
+count_cut      = { fg = "${color0}", bg = "${color1}" }
+count_selected = { fg = "${color0}", bg = "${color3}" }
+
+# Border
+border_symbol = "│"
+border_style  = { fg = "${color1}" }
+
+# : }}}
+
+
+# : Tabs {{{
+
+[tabs]
+active   = { fg = "${color0}", bg = "${color5}", bold = true }
+inactive = { fg = "${color5}", bg = "${color8}" }
+
+# : }}}
+
+
+# : Mode {{{
+
+[mode]
+
+normal_main = { fg = "${color0}", bg = "${color5}", bold = true }
+normal_alt  = { fg = "${color5}", bg = "${color8}" }
+
+select_main = { fg = "${color0}", bg = "${color6}", bold = true }
+select_alt  = { fg = "${color6}", bg = "${color8}" }
+
+unset_main = { fg = "${color0}", bg = "${color3}", bold = true }
+unset_alt  = { fg = "${color3}", bg = "${color8}" }
+
+# : }}}
+
+
+# : Status bar {{{
+
+[status]
+perm_sep   = { fg = "${color8}" }
+perm_type  = { fg = "${color5}" }
+perm_read  = { fg = "${color3}" }
+perm_write = { fg = "${color1}" }
+perm_exec  = { fg = "${color2}" }
+
+progress_label  = { fg = "${color7}", bold = true }
+progress_normal = { fg = "${color2}", bg = "${color8}" }
+progress_error  = { fg = "${color3}", bg = "${color1}" }
+
+# : }}}
+
+
+# : Pick {{{
+
+[pick]
+border = { fg = "${color5}" }
+active = { fg = "${color5}", bold = true }
+
+# : }}}
+
+
+# : Input {{{
+
+[input]
+border   = { fg = "${color5}" }
+selected = { reversed = true }
+
+# : }}}
+
+
+# : Completion {{{
+
+[cmp]
+border = { fg = "${color5}" }
+
+# : }}}
+
+
+# : Tasks {{{
+
+[tasks]
+border  = { fg = "${color5}" }
+hovered = { fg = "${color5}", bold = true }
+
+# : }}}
+
+
+# : Which {{{
+
+[which]
+mask            = { bg = "${color8}" }
+cand            = { fg = "${color6}" }
+rest            = { fg = "${color8}" }
+desc            = { fg = "${color5}" }
+separator       = "  "
+separator_style = { fg = "${color8}" }
+
+# : }}}
+
+
+# : Help {{{
+
+[help]
+on      = { fg = "${color6}" }
+run     = { fg = "${color5}" }
+hovered = { reversed = true, bold = true }
+footer  = { fg = "${color8}", bg = "${color7}" }
+
+# : }}}
+
+
+# : Spotter {{{
+
+[spot]
+border   = { fg = "${color5}" }
+title    = { fg = "${color5}" }
+tbl_col  = { fg = "${color6}" }
+tbl_cell = { fg = "${color5}", bg = "${color8}" }
+
+# : }}}
+
+
+# : Notification {{{
+
+[notify]
+title_info  = { fg = "${color2}" }
+title_warn  = { fg = "${color3}" }
+title_error = { fg = "${color1}" }
+
+# : }}}
+
+
+# : File-specific styles {{{
+
+[filetype]
+
+rules = [
+	{ mime = "image/*", fg = "${color6}" },
+	{ mime = "{audio,video}/*", fg = "${color3}" },
+	{ mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", fg = "${color5}" },
+	{ mime = "application/{pdf,doc,rtf}", fg = "${color2}" },
+	{ mime = "vfs/{absent,stale}", fg = "${color8}" },
+	{ url = "*", fg = "${color7}" },
+	{ url = "*/", fg = "${color5}" },
+]
+
+# : }}}
+
+[icon]
+
+dirs = [
+	{ name = ".config", text = "", fg = "${color5}" },
+	{ name = ".git", text = "", fg = "${color6}" },
+	{ name = ".github", text = "", fg = "${color5}" },
+	{ name = ".npm", text = "", fg = "${color5}" },
+	{ name = "Desktop", text = "", fg = "${color6}" },
+	{ name = "Development", text = "", fg = "${color6}" },
+	{ name = "Documents", text = "", fg = "${color6}" },
+	{ name = "Downloads", text = "", fg = "${color6}" },
+	{ name = "Library", text = "", fg = "${color6}" },
+	{ name = "Movies", text = "", fg = "${color6}" },
+	{ name = "Music", text = "", fg = "${color6}" },
+	{ name = "Pictures", text = "", fg = "${color6}" },
+	{ name = "Public", text = "", fg = "${color6}" },
+	{ name = "Videos", text = "", fg = "${color6}" },
+]
+conds = [
+	{ if = "orphan", text = "", fg = "${color7}" },
+	{ if = "link", text = "", fg = "${color8}" },
+	{ if = "block", text = "", fg = "${color3}" },
+	{ if = "char", text = "", fg = "${color3}" },
+	{ if = "fifo", text = "", fg = "${color3}" },
+	{ if = "sock", text = "", fg = "${color3}" },
+	{ if = "sticky", text = "", fg = "${color3}" },
+	{ if = "dummy", text = "", fg = "${color1}" },
+	{ if = "dir", text = "", fg = "${color5}" },
+	{ if = "exec", text = "", fg = "${color2}" },
+	{ if = "!dir", text = "", fg = "${color7}" },
+]
+EOF
+#: }}}

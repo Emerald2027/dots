@@ -1,0 +1,102 @@
+@import "colors.css";
+
+* {
+    border: none;
+    border-radius: 0px;
+    font-family: "JetbrainsMono Nerd Font Propo", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    min-height: 0;
+}
+
+window#waybar {
+    background: @color8;
+    color: @color15;
+}
+
+tooltip {
+  background: rgba(43, 48, 59, 0.5);
+  border: 1px solid rgba(100, 114, 125, 0.5);
+}
+tooltip label {
+  color: white;
+}
+
+#clock {
+    /*background-color: #64727D;*/
+}
+
+#battery {
+    /*background-color: #ffffff;*/
+    /*color: black;*/
+}
+
+#battery.charging {
+    color: @color15;
+    background-color: @color10;
+    padding: 6px;
+}
+
+@keyframes blink {
+    to {
+        background-color: @color4;
+        color: black;
+        padding: 6px;
+    }
+}
+
+#battery.warning:not(.charging) {
+    background: @color5;
+    color: @color15;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    padding: 6px;
+}
+
+.modules-left {
+    margin-left: 15px;
+}
+
+.modules-right {
+    margin-right: 15px;
+}
+
+#custom-launcher,
+#clock,
+#custom-notification,
+#custom-media,
+#custom-pacman,
+#custom-weather,
+#pulseaudio,
+#battery,
+#network,
+#power-profiles-daemon {
+    margin-right: 15px;
+}
+
+#power-profiles-daemon {
+    margin: 0;
+}
+
+#custom-separator {
+    margin: 0;
+    padding: 0;
+}
+
+#workspaces {
+    margin-right: 15px;
+}
+#workspaces button{
+    color: @color15; 
+}
+#workspaces button.active{
+    border-bottom: 2px solid @color4;
+    color: @color4;
+}
+
+#custom-weather {
+    font-size: 1.5em;
+}
