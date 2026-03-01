@@ -65,13 +65,46 @@ while IFS= read -r wallpaper; do
 done <<< "$WALLPAPERS"
 
 # Show rofi menu with image previews
-SELECTED=$(echo -e "$MENU" | rofi -dmenu -i -p "Select Wallpaper" \
+SELECTED=$(echo -e "$MENU" | rofi -dmenu -i -p " Select wallpaper" \
     -show-icons \
-    -theme-str 'window {width: 60%;}' \
-    -theme-str 'listview {columns: 3; lines: 4;}' \
-    -theme-str 'element {orientation: vertical; padding: 10px;}' \
-    -theme-str 'element-icon {size: 12em;}' \
-    -theme-str 'element-text {horizontal-align: 0.5;}')
+    -theme-str '
+    window {
+        width: 60%;
+        height: 70%;
+        location: center;
+        anchor: center;
+    }
+    mainbox {
+        orientation: vertical;
+        children: [listview, message, inputbar];
+        spacing: 0;
+    }
+    listview {
+        columns: 3;
+        lines: 3;
+        scrollbar: false;
+        spacing: 8px;
+        padding: 10px;
+    }
+    element {
+        orientation: vertical;
+        padding: 8px;
+        spacing: 6px;
+    }
+    element-icon {
+        size: 10em;
+        horizontal-align: 0.5;
+    }
+    element-text {
+        horizontal-align: 0.5;
+        vertical-align: 0.5;
+        padding: 4px 0px;
+    }
+    inputbar {
+        padding: 10px 14px;
+        border: 1px 0px 0px 0px;
+    }
+    ')
 # Exit if nothing selected
 if [ -z "$SELECTED" ]; then
     exit 0

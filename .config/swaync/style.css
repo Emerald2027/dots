@@ -17,7 +17,7 @@
 }
 
 .notification,
-.notification-content,
+.notification-content label,
 .notification-action,
 .notification-default-action,
 .inline-reply-entry,

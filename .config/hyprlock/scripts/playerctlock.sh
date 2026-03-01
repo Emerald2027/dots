@@ -1,111 +1,165 @@
-#!/bin/env bash
+#!/usr/bin/env bash
+# hyde-mpris.sh — MPRIS metadata helper for Waybar/Hyprlock
+# Supports: Spotify, MPD (via mpd-mpris bridge), and generic MPRIS players
 
 THUMB=/tmp/hyde-mpris
 THUMB_BLURRED=/tmp/hyde-mpris-blurred
 
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 --title | --arturl | --artist | --position | --length | --album | --source"
+    echo "Usage: $0 --title | --artist | --position | --length | --album | --source | --status"
     exit 1
 fi
 
-# Function to get metadata using playerctl
+# ---------------------------------------------------------------------------
+# Player detection — prefer Spotify, fall back to any active player
+# ---------------------------------------------------------------------------
+get_active_player() {
+    # Try Spotify first
+    if playerctl -l 2>/dev/null | grep -qi spotify; then
+        echo "spotify"
+        return
+    fi
+    # Then MPD (mpd-mpris exposes it as 'mpd')
+    if playerctl -l 2>/dev/null | grep -qi mpd; then
+        echo "mpd"
+        return
+    fi
+    # Fall back to whatever playerctl picks as default
+    local default
+    default=$(playerctl -l 2>/dev/null | head -1)
+    if [ -n "$default" ]; then
+        echo "$default"
+        return
+    fi
+    echo ""
+}
+
+PLAYER=$(get_active_player)
+
+if [ -z "$PLAYER" ]; then
+    echo ""
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 get_metadata() {
-    key=$1
-    playerctl metadata --format "{{ $key }}" 2>/dev/null
+    playerctl -p "$PLAYER" metadata --format "{{ $1 }}" 2>/dev/null
 }
 
-# Function to check if the player is Spotify
-is_spotify() {
-    player=$(playerctl -l 2>/dev/null | grep spotify)
-    if [ -z "$player" ]; then
-        echo "Not playing on Spotify"
-        exit 1
-    fi
-}
-
-# Function to determine the source and return an icon and text
-get_source_info() {
-    trackid=$(get_metadata "mpris:trackid")
-    if [[ "$trackid" == *"spotify"* ]]; then
-        echo -e "Spotify "
-    else
-        echo ""
-    fi
-}
-
-# Function to get position using playerctl
 get_position() {
-    playerctl position 2>/dev/null
+    playerctl -p "$PLAYER" position 2>/dev/null
 }
 
-# Function to convert microseconds to minutes and seconds
 convert_length() {
     local length=$1
     local seconds=$((length / 1000000))
     local minutes=$((seconds / 60))
-    local remaining_seconds=$((seconds % 60))
-    printf "%d:%02d min" $minutes $remaining_seconds
+    local remaining=$((seconds % 60))
+    printf "%d:%02d min" "$minutes" "$remaining"
 }
 
-# Function to convert seconds to minutes and seconds
 convert_position() {
     local position=$1
-    local seconds=${position%.*} # Remove fractional part if exists
+    local seconds=${position%.*}
     local minutes=$((seconds / 60))
-    local remaining_seconds=$((seconds % 60))
-    printf "%d:%02d" $minutes $remaining_seconds
+    local remaining=$((seconds % 60))
+    printf "%d:%02d" "$minutes" "$remaining"
 }
 
-# Function to fetch album art and create blurred version
+# ---------------------------------------------------------------------------
+# Album art fetching — handles https://, http://, and file:// URIs
+# ---------------------------------------------------------------------------
 fetch_thumb() {
-    artUrl=$(playerctl -p spotify metadata --format '{{mpris:artUrl}}') 
-    [[ "${artUrl}" = "$(cat "${THUMB}.inf")" ]] && return 0
+    local artUrl
+    artUrl=$(playerctl -p "$PLAYER" metadata --format '{{mpris:artUrl}}' 2>/dev/null)
+
+    [ -z "$artUrl" ] && return 1
+
+    # Skip re-fetch if URL hasn't changed
+    [[ "$artUrl" == "$(cat "${THUMB}.inf" 2>/dev/null)" ]] && return 0
 
     printf "%s\n" "$artUrl" > "${THUMB}.inf"
 
-    curl -so "${THUMB}.png" "$artUrl"
-    magick "${THUMB}.png" -quality 50 "${THUMB}.png"
-    # Create blurred version
-    magick "${THUMB}.png" -blur 200x7 -resize 1920x^ -gravity center -extent 1920x1080\! "${THUMB_BLURRED}.png"
+    if [[ "$artUrl" == file://* ]]; then
+        # Local file (MPD / rmpc)
+        local filepath="${artUrl#file://}"
+        # URL-decode the path (spaces encoded as %20, etc.)
+        filepath=$(python3 -c "import urllib.parse,sys; print(urllib.parse.unquote(sys.argv[1]))" "$filepath" 2>/dev/null || echo "$filepath")
+        magick "$filepath" -quality 50 "${THUMB}.png" 2>/dev/null || return 1
+    elif [[ "$artUrl" == http* ]]; then
+        # Remote URL (Spotify, etc.)
+        curl -so "${THUMB}.png" "$artUrl" || return 1
+        magick "${THUMB}.png" -quality 50 "${THUMB}.png"
+    else
+        return 1
+    fi
 
-    pkill -USR2 hyprlock
+    # Blurred wallpaper version for hyprlock
+    magick "${THUMB}.png" \
+        -blur 200x7 \
+        -resize 1920x^ \
+        -gravity center \
+        -extent 1920x1080\! \
+        "${THUMB_BLURRED}.png"
+
+    pkill -USR2 hyprlock 2>/dev/null
 }
 
-# Ensure player is Spotify
-is_spotify
+# Run in background; clean up thumbs on failure
+{ fetch_thumb || rm -f "${THUMB}.png" "${THUMB_BLURRED}.png" "${THUMB}.inf"; } &
 
-# Run fetch_thumb function in the background
-{ fetch_thumb ;} || { rm -f "${THUMB}*" && exit 1;} &
+# ---------------------------------------------------------------------------
+# Source detection
+# ---------------------------------------------------------------------------
+get_source_info() {
+    local trackid
+    trackid=$(get_metadata "mpris:trackid")
+    case "$PLAYER" in
+        *spotify*) echo "Spotify " ;;
+        *mpd*)     echo "MPD " ;;
+        *)         echo "" ;;
+    esac
+}
 
-# Parse the argument
+# ---------------------------------------------------------------------------
+# Argument dispatch
+# ---------------------------------------------------------------------------
 case "$1" in
 --title)
     title=$(get_metadata "xesam:title")
     if [ -z "$title" ]; then
         echo ""
     else
-        echo "${title:0:15}..." # Limit the output to 50 characters
+        # Show first 20 chars then ellipsis if longer
+        if [ ${#title} -gt 20 ]; then
+            echo "${title:0:20}..."
+        else
+            echo "$title"
+        fi
     fi
     ;;
+
 --artist)
     artist=$(get_metadata "xesam:artist")
     if [ -z "$artist" ]; then
         echo ""
     else
-        echo "${artist:0:20}" #mit the output to 50 characters
+        echo "${artist:0:25}"
     fi
     ;;
+
 --position)
     position=$(get_position)
     length=$(get_metadata "mpris:length")
     if [ -z "$position" ] || [ -z "$length" ]; then
         echo ""
     else
-        position_formatted=$(convert_position "$position")
-        length_formatted=$(convert_length "$length")
-        echo "$position_formatted/$length_formatted"
+        echo "$(convert_position "$position")/$(convert_length "$length")"
     fi
     ;;
+
 --length)
     length=$(get_metadata "mpris:length")
     if [ -z "$length" ]; then
@@ -114,35 +168,32 @@ case "$1" in
         convert_length "$length"
     fi
     ;;
+
 --status)
-    status=$(playerctl status 2>/dev/null)
-    if [[ $status == "Playing" ]]; then
-        echo "⏸"
-    elif [[ $status == "Paused" ]]; then
-        echo "▶"
-    else
-        echo ""
-    fi
+    status=$(playerctl -p "$PLAYER" status 2>/dev/null)
+    case "$status" in
+        Playing) echo "⏸" ;;
+        Paused)  echo "▶" ;;
+        *)       echo "" ;;
+    esac
     ;;
+
 --album)
-    album=$(playerctl metadata --format "{{ xesam:album }}" 2>/dev/null)
-    if [[ -n $album ]]; then
+    album=$(get_metadata "xesam:album")
+    if [ -n "$album" ]; then
         echo "$album"
     else
-        status=$(playerctl status 2>/dev/null)
-        if [[ -n $status ]]; then
-            echo "Not album"
-        else
-            echo ""
-        fi
+        echo "No album"
     fi
     ;;
+
 --source)
     get_source_info
     ;;
+
 *)
     echo "Invalid option: $1"
-    echo "Usage: $0 --title | --arturl | --artist | --position | --length | --album | --source"
+    echo "Usage: $0 --title | --artist | --position | --length | --album | --source | --status"
     exit 1
     ;;
 esac

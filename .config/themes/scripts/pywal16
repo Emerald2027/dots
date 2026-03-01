@@ -3,11 +3,8 @@
 # Source pywal colors
 source ~/.cache/wal/colors.sh
 
-# Apply to Kitty
-if [ -f ~/.cache/wal/colors-kitty.conf ]; then
-    cp ~/.cache/wal/colors-kitty.conf ~/.config/kitty/colors.conf
-    killall -SIGUSR1 kitty 2>/dev/null
-fi
+
+
 
 # Apply to Rofi
 mkdir -p ~/.config/rofi
@@ -67,6 +64,29 @@ cat > ~/.config/waybar/colors.css << EOF
 @define-color color14 ${color14};
 @define-color color15 ${color15};
 EOF
+
+# Apply to SwayNC
+cat > ~/.config/swaync/colors.css << EOF
+@define-color cc-bg ${color0};
+@define-color noti-border-color ${color5};
+@define-color noti-bg ${color0};
+@define-color noti-bg-darker ${color8};
+@define-color noti-bg-hover ${color8};
+@define-color noti-bg-focus ${color8};
+@define-color noti-close-bg ${color5};
+@define-color noti-close-bg-hover ${color6};
+@define-color text-color ${color7};
+@define-color text-color-disabled ${color8};
+@define-color bg-selected ${color4};
+@define-color border-green ${color4};
+@define-color red-base ${color1};
+@define-color red-hover ${color9};
+@define-color green-base ${color2};
+@define-color blue-base ${color4};
+EOF
+
+# Reload SwayNC
+swaync-client --reload-css
 
 # Apply to Hyprland
 cat > ~/.config/hypr/colors.conf << EOF
@@ -311,3 +331,11 @@ conds = [
 ]
 EOF
 #: }}}
+
+# Apply to Kitty
+if [ -f ~/.cache/wal/colors-kitty.conf ]; then
+    cp ~/.cache/wal/colors-kitty.conf ~/.config/kitty/colors.conf
+    killall -SIGUSR1 kitty 2>/dev/null
+fi
+
+kill -USR2 $(pgrep -u "$USER" bash) 2>/dev/null

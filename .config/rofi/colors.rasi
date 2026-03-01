@@ -1,8 +1,8 @@
 * {
-    selected-normal-foreground:  #131312; //highlighted text
-    foreground:                  #c4c4c3; //color of other text
+    selected-normal-foreground:  #131210; //highlighted text
+    foreground:                  #c4c3c3; //color of other text
     normal-foreground:           @foreground;
-    alternate-normal-background: #6e6e5a; //odd numbered background
+    alternate-normal-background: #6e6459; //odd numbered background
     red:                         rgba ( 220, 50, 47, 100 % );
     selected-urgent-foreground:  rgba ( 255, 24, 68, 100 % );
     blue:                        rgba ( 38, 139, 210, 100 % );
@@ -17,10 +17,10 @@
     alternate-normal-foreground: @foreground;
     normal-background:           @alternate-normal-background;
     lightfg:                     rgba ( 88, 104, 117, 100 % );
-    selected-normal-background:  #c4c4c3; //selection background
+    selected-normal-background:  #c4c3c3; //selection background
     border-color:                @foreground;
     spacing:                     2;
-    separatorcolor:              #c3bdb0; //dashed line between search and options
+    separatorcolor:              #9da8a5; //dashed line between search and options
     urgent-background:           rgba ( 39, 50, 56, 100 % );
     selected-urgent-background:  rgba ( 57, 66, 73, 100 % );
     alternate-urgent-foreground: @urgent-foreground;
